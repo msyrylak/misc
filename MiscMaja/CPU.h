@@ -35,6 +35,8 @@ public:
 
 	Instr InstrTable[256];
 
+	bool illegalOpcode;
+
 	void Exec(Instr i);
 
 	void Op_BRK(uint16_t src);

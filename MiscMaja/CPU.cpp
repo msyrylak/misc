@@ -31,13 +31,52 @@ CPU::~CPU()
 
 void CPU::Reset()
 {
+	A = 0x00;
+	B = 0x00;
+	C = 0x00;
+
+	pc = (Read(rstVectorH) << 8) + Read(rstVectorL); // load PC from reset vector
+
+	sp = 0xFD;
+
+	//status |= CONSTANT;
+
+	cycles = 6; // according to the datasheet, the reset routine takes 6 clock cycles
+
+
+	return;
 
 }
 
 void CPU::Run(uint32_t n)
 {
+	uint32_t start = cycles;
+	uint8_t opcode;
+	Instr instr;
+
+	while(start + n > cycles && !illegalOpcode)
+	{
+		// fetch
+		opcode = Read(pc++);
+
+		// decode
+		instr = InstrTable[opcode];
+
+		// execute
+		Exec(instr);
+
+		cycles++;
+	}
 
 }
+
+
+void CPU::Exec(Instr i)
+{
+	uint16_t src = (this->*i.addr)();
+	(this->*i.code)(src);
+}
+
 
 uint16_t CPU::Addr_IMM()
 {
@@ -63,4 +102,27 @@ uint16_t CPU::Addr_ABS()
 	return addr;
 }
 
-void CPU::Op_BRK()
+void CPU::Op_BRK(uint16_t src)
+{
+	//pc++;
+	//StackPush((pc >> 8) & 0xFF);
+	//StackPush(pc & 0xFF);
+	//StackPush(status | BREAK);
+	//SET_INTERRUPT(1);
+	//pc = (Read(irqVectorH) << 8) + Read(irqVectorL);
+	//return;
+}
+
+void CPU::Op_LDA(uint16_t src)
+{
+	uint8_t m = Read(src);
+	//SET_NEGATIVE(m & 0x80);
+	//SET_ZERO(!m);
+	A = m;
+}
+
+void CPU::Op_STA(uint16_t src)
+{
+	Write(src, A);
+	return;
+}
