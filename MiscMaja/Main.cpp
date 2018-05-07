@@ -23,9 +23,15 @@ int main()
 	myMem[1] = 5;
 	myMem[2] = 0x8D;
 	myMem[3] = 10;
+	myMem[4] = 0;
+	myMem[5] = 0x01;
+	myMem[6] = 10;
+	myMem[7] = 0;
+	myMem[10] = 5;
+
 	CPU test(BusRead, BusWrite);
 	test.Reset();
-	test.Run(2);
+	test.Run(6);
 
 	return 0;
 }

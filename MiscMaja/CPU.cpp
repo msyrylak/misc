@@ -19,6 +19,9 @@ CPU::CPU(BusRead read, BusWrite write)
 	instr.code = &CPU::Op_STA;
 	InstrTable[0x8D] = instr;
 
+	instr.addr = &CPU::Addr_ABS;
+	instr.code = &CPU::Op_ADD;
+	InstrTable[0x01] = instr;
 
 	Reset();
 	return;
@@ -31,9 +34,9 @@ CPU::~CPU()
 
 void CPU::Reset()
 {
-	A = 0x00;
-	B = 0x00;
-	C = 0x00;
+	R1 = 0x00;
+	R2 = 0x00;
+	R3 = 0x00;
 
 	pc = (Read(rstVectorH) << 8) + Read(rstVectorL); // load PC from reset vector
 
@@ -118,11 +121,20 @@ void CPU::Op_LDA(uint16_t src)
 	uint8_t m = Read(src);
 	//SET_NEGATIVE(m & 0x80);
 	//SET_ZERO(!m);
-	A = m;
+	R1 = m;
 }
 
 void CPU::Op_STA(uint16_t src)
 {
-	Write(src, A);
+	Write(src, R1);
 	return;
+}
+
+void CPU::Op_ADD(uint16_t src)
+{
+	uint16_t tmp = Read(src);
+	uint16_t tmp2 = tmp + R1;
+	R2 = tmp2;
+	return;
+
 }
