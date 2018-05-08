@@ -14,14 +14,29 @@ class CPU
 	const uint8_t OVERFLOW_SHIFT = 6;
 	const uint8_t NEGATIVE_SHIFT = 7;
 
-	const uint8_t FLG_CARRY = 0;
-	const uint8_t FLG_ZERO = 1;
-	const uint8_t FLG_INTERRUPT = 2;
-	const uint8_t FLG_BREAK = 4;
-	const uint8_t FLG_OVERFLOW = 6;
-	const uint8_t FLG_NEGATIVE = 7;
+	const uint8_t FLG_CARRY = 1 << CARRY_SHIFT;
+	const uint8_t FLG_ZERO = 1 << ZERO_SHIFT;
+	const uint8_t FLG_INTERRUPT = 1 << INTERRUPT_SHIFT;
+	const uint8_t FLG_BREAK = 1 << BREAK_SHIFT;
+	const uint8_t FLG_OVERFLOW = 1 << OVERFLOW_SHIFT;
+	const uint8_t FLG_NEGATIVE = 1 << NEGATIVE_SHIFT;
 
+	// flag sets
 
+	void SetCarry(uint8_t x);
+	void SetZero(uint8_t);
+	void SetInterrupt(uint8_t);
+	void SetBreak(uint8_t);
+	void SetOverflow(uint8_t);
+	void SetNegative(uint8_t);
+
+	// flag checks
+	bool IfCarry();
+	bool IfZero();
+	bool IfInterrupt();
+	bool IfBreak();
+	bool IfOverflow();
+	bool IfNegative();
 
 
 
@@ -32,13 +47,13 @@ public:
 	uint8_t R3;
 
 	// stack pointer
-	uint8_t sp;
+	uint8_t SP;
 
 	// program counter
-	uint16_t pc;
+	uint16_t PC;
 
 	// status register
-	uint8_t status;
+	uint8_t SR;
 
 	// consumed clock cycles 
 	uint32_t cycles;

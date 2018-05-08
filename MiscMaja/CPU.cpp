@@ -32,15 +32,92 @@ CPU::~CPU()
 {
 }
 
+void CPU::SetCarry(uint8_t x)
+{
+	x ? (SR |= FLG_CARRY) : (SR &= (~FLG_CARRY));
+}
+
+
+void CPU::SetZero(uint8_t x)
+{
+	x ? (SR |= FLG_ZERO) : (SR &= (~FLG_ZERO));
+}
+
+
+void CPU::SetInterrupt(uint8_t x)
+{
+	x ? (SR |= FLG_INTERRUPT) : (SR &= (~FLG_INTERRUPT));
+}
+
+
+void CPU::SetBreak(uint8_t x)
+{
+	x ? (SR |= FLG_BREAK) : (SR &= (~FLG_BREAK));
+}
+
+
+void CPU::SetOverflow(uint8_t x)
+{
+	x ? (SR |= FLG_OVERFLOW) : (SR &= (~FLG_OVERFLOW));
+}
+
+
+void CPU::SetNegative(uint8_t x)
+{
+	x ? (SR |= FLG_NEGATIVE) : (SR &= (~FLG_NEGATIVE));
+}
+
+bool CPU::IfCarry()
+{
+	bool flagTest = SR & FLG_CARRY;
+	return flagTest;
+}
+
+
+bool CPU::IfZero()
+{
+	bool flagTest = SR & FLG_ZERO;
+	return flagTest;
+}
+
+
+bool CPU::IfInterrupt()
+{
+	bool flagTest = SR & FLG_INTERRUPT;
+	return flagTest;
+}
+
+
+bool CPU::IfBreak()
+{
+	bool flagTest = SR & FLG_BREAK;
+	return flagTest;
+}
+
+
+bool CPU::IfOverflow()
+{
+	bool flagTest = SR & FLG_OVERFLOW;
+	return flagTest;
+}
+
+
+bool CPU::IfNegative()
+{
+	bool flagTest = SR & FLG_NEGATIVE;
+	return flagTest;
+}
+
+
 void CPU::Reset()
 {
 	R1 = 0x00;
 	R2 = 0x00;
 	R3 = 0x00;
 
-	pc = (Read(rstVectorH) << 8) + Read(rstVectorL); // load PC from reset vector
+	PC = (Read(rstVectorH) << 8) + Read(rstVectorL); // load PC from reset vector
 
-	sp = 0xFD;
+	SP = 0xFD;
 
 	//status |= CONSTANT;
 
@@ -60,7 +137,7 @@ void CPU::Run(uint32_t n)
 	while(start + n > cycles && !illegalOpcode)
 	{
 		// fetch
-		opcode = Read(pc++);
+		opcode = Read(PC++);
 
 		// decode
 		instr = InstrTable[opcode];
@@ -83,7 +160,7 @@ void CPU::Exec(Instr i)
 
 uint16_t CPU::Addr_IMM()
 {
-	return pc++;
+	return PC++;
 }
 
 uint16_t CPU::Addr_IMP()
@@ -97,8 +174,8 @@ uint16_t CPU::Addr_ABS()
 	uint16_t addrH;
 	uint16_t addr;
 
-	addrL = Read(pc++);
-	addrH = Read(pc++);
+	addrL = Read(PC++);
+	addrH = Read(PC++);
 
 	addr = addrL + (addrH << 8);
 
@@ -133,8 +210,8 @@ void CPU::Op_STA(uint16_t src)
 void CPU::Op_ADD(uint16_t src)
 {
 	uint16_t tmp = Read(src);
-	uint16_t tmp2 = tmp + R1;
-	R2 = tmp2;
+	unsigned int tmp2 = tmp + R1;
+	SetCarry(tmp2 > 0xFF);
+	SetZero(!(tmp2 & 0xFF));
 	return;
-
 }
