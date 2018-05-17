@@ -58,25 +58,38 @@ public:
 	// consumed clock cycles 
 	uint32_t cycles;
 
-	typedef void (CPU::*CodeExec)(uint16_t);
-	typedef uint16_t(CPU::*AddrExec)();
+	// instruction
+	uint8_t instruction;
 
-	typedef struct Instr
-	{
-		AddrExec addr;
-		CodeExec code;
-	};
+	// instructions table
+	uint8_t InstructionSet[256];
 
-	Instr InstrTable[256];
+	typedef void(CPU::*OpCode)(uint16_t);
+	OpCode OpCodes[16];
+
+	typedef uint16_t(CPU::*AddressMode)();
+	AddressMode AddressModes[8];
+
+	//typedef void (CPU::*CodeExec)(uint16_t);
+	//typedef uint16_t(CPU::*AddrExec)();
+
+	//typedef struct Instr
+	//{
+	//	AddrExec addr;
+	//	CodeExec code;
+	//};
+
+	//Instr InstrTable[256];
 
 	bool illegalOpcode;
 
-	void Exec(Instr i);
+	void Exec(uint8_t i);
 
 	void Op_BRK(uint16_t src);
 	void Op_STA(uint16_t src);
 	void Op_LDA(uint16_t src);
 	void Op_ADD(uint16_t src);
+	void Op_MOV(uint16_t src);
 
 	uint16_t Addr_IMP(); // IMPLIED
 	uint16_t Addr_IMM(); // IMMEDIATE
@@ -100,6 +113,15 @@ public:
 	void Reset();
 	void Run(uint32_t n);
 
+	// stack operations
+	void StackPush(uint8_t byte);
+	uint8_t StackPop(uint8_t byte);
+
+	uint8_t InstructionManager(uint8_t opCode, uint8_t address);
+	void InstructionManager(uint8_t instruction);
+
+	AddressMode GetAddress(uint8_t addressMd);
+	OpCode GetOpCode(uint8_t opCode);
 };
 
 

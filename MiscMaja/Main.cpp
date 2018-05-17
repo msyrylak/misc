@@ -30,6 +30,9 @@ int main()
 	myMem[8] = 0;
 	myMem[9] = 254;
 	myMem[10] = 0;
+	myMem[11] = 6;
+	myMem[12] = 0;
+	myMem[13] = 0;
 
 	CPU test(BusRead, BusWrite);
 	test.Reset();
