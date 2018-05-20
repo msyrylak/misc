@@ -1,40 +1,9 @@
-#include "CPU.h"
+#include "SOC.h"
 #include <iostream>
-
-uint8_t myMem[65536];
-
-void BusWrite(uint16_t addr, uint8_t val)
-{
-	myMem[addr] = val;
-}
-
-
-uint8_t BusRead(uint16_t addr)
-{
-	return myMem[addr];
-}
-
 
 int main()
 {
-	myMem[CPU::rstVectorH] = 0;
-	myMem[CPU::rstVectorL] = 0;
-	myMem[0] = 169;
-	myMem[1] = 5;
-	myMem[2] = 0x8D;
-	myMem[3] = 10;
-	myMem[4] = 0;
-	myMem[5] = 0x01;
-	myMem[6] = 9;
-	myMem[7] = 0;
-	myMem[8] = 0;
-	myMem[9] = 254;
-	myMem[10] = 0;
-	myMem[11] = 6;
-	myMem[12] = 0;
-	myMem[13] = 0;
-
-	CPU test(BusRead, BusWrite);
+	SOC test;
 	test.Reset();
 	test.Run(6);
 
