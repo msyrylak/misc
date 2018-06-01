@@ -6,14 +6,52 @@ SOC::SOC()
 	OpCodes[0x01] = &SOC::Op_ADD;
 	OpCodes[0x02] = &SOC::Op_LD;
 	OpCodes[0x03] = &SOC::Op_ST;
+	OpCodes[0x04] = &SOC::Op_JMP;
+	OpCodes[0x05] = &SOC::Op_JPC;
+	OpCodes[0x06] = &SOC::Op_JPZ;
+	OpCodes[0x07] = &SOC::Op_JPN;
+	OpCodes[0x08] = &SOC::Op_PH;
+	OpCodes[0x09] = &SOC::Op_PL;
+	OpCodes[0x0A] = &SOC::Op_AND;
+	OpCodes[0x0B] = &SOC::Op_XOR;
+	OpCodes[0x0C] = &SOC::Op_CLC;
 
 	AddressModes[0x00] = &SOC::Addr_ABS;
 	AddressModes[0x01] = &SOC::Addr_IMM;
 	AddressModes[0x02] = &SOC::Addr_IMP;
 
-	InstructionSet[0x00] = InstructionManager(0x03, 0x00);
-	InstructionSet[0xA9] = InstructionManager(0x02, 0x01);
-	
+	RegCodes[0x00] = &R1;
+	RegCodes[0x01] = &R2;
+	RegCodes[0x02] = &R3;
+
+	InstructionSet[0x00] = InstructionManager(0x00, 0x00, 0x00); // BRK
+	InstructionSet[0x01] = InstructionManager(0x04, 0x00, 0x00); // JMP
+	InstructionSet[0x02] = InstructionManager(0x05, 0x01, 0x00); // JPC
+	InstructionSet[0x03] = InstructionManager(0x06, 0x01, 0x00); // JPZ
+	InstructionSet[0x04] = InstructionManager(0x07, 0x01, 0x00); // JPN
+	InstructionSet[0x05] = InstructionManager(0x01, 0x01, 0x00); // ADD
+	InstructionSet[0x06] = InstructionManager(0x0B, 0x01, 0x00); // XOR
+	InstructionSet[0x07] = InstructionManager(0x0C, 0x02, 0x00); // CLC
+	InstructionSet[0x08] = InstructionManager(0x08, 0x02, 0x00); // PH
+	InstructionSet[0x09] = InstructionManager(0x09, 0x02, 0x00); // PL
+	InstructionSet[0x0A] = InstructionManager(0x0A, 0x02, 0x00); // AND
+	InstructionSet[0xA9] = InstructionManager(0x02, 0x01, 0x00); // LD
+	InstructionSet[0x8D] = InstructionManager(0x03, 0x00, 0x00); // ST
+
+	myMem[SOC::rstVectorH] = 0;
+	myMem[SOC::rstVectorL] = 0;
+	myMem[0] = 169;
+	myMem[1] = 5;
+	myMem[2] = 0x06;
+	myMem[3] = 0xFF;
+	myMem[4] = 0x05;
+	myMem[5] = 1;
+	myMem[6] = 0x07;
+	myMem[7] = 0x05;
+	myMem[8] = 10;
+	myMem[9] = 0x8D;
+	myMem[10] = 12;
+	myMem[11] = 0;
 
 	Reset();
 	return;
@@ -24,32 +62,12 @@ SOC::~SOC()
 {
 }
 
+
 void SOC::SetFlags(uint8_t x, const uint8_t flag)
 {
-	switch(flag)
-	{
-	case FLG_CARRY:
-		x ? (SR |= FLG_CARRY) : (SR &= (~FLG_CARRY));
-		break;
-	case FLG_ZERO:
-		x ? (SR |= FLG_ZERO) : (SR &= (~FLG_ZERO));
-		break;
-	case FLG_INTERRUPT:
-		x ? (SR |= FLG_INTERRUPT) : (SR &= (~FLG_INTERRUPT));
-		break;
-	case FLG_BREAK:
-		x ? (SR |= FLG_BREAK) : (SR &= (~FLG_BREAK));
-		break;
-	case FLG_OVERFLOW:
-		x ? (SR |= FLG_OVERFLOW) : (SR &= (~FLG_OVERFLOW));
-		break;
-	case FLG_NEGATIVE:
-		x ? (SR |= FLG_NEGATIVE) : (SR &= (~FLG_NEGATIVE));
-		break;
-	default:
-		break;
-	}
+	x ? (SR |= flag) : (SR &= (~flag));
 }
+
 
 void SOC::SetCarry(uint8_t x)
 {
@@ -180,10 +198,11 @@ void SOC::Exec(uint8_t i)
 
 	// decode opcode and addressing mode
 	uint8_t opCode = i & 0x0F;
-	uint8_t addressMd = i >> 4;
+	uint8_t addressMd = i >> 6;
+	uint8_t regBit = (i >> 4) & 3;
 
 	uint16_t src = (*this.*(GetAddress(addressMd)))();
-	(*this.*(GetOpCode(opCode)))(src);
+	(*this.*(GetOpCode(opCode)))(regBit, src);
 }
 
 
@@ -215,7 +234,7 @@ uint16_t SOC::Addr_ABS()
 }
 
 
-void SOC::Op_BRK(uint16_t src)
+void SOC::Op_BRK(uint8_t reg, uint16_t src)
 {
 	//pc++;
 	//StackPush((pc >> 8) & 0xFF);
@@ -226,28 +245,90 @@ void SOC::Op_BRK(uint16_t src)
 	//return;
 }
 
-void SOC::Op_LD(uint16_t src)
+void SOC::Op_LD(uint8_t reg, uint16_t src)
 {
 	uint8_t m = Read(src);
 	SetNegative(m & 0x80);
 	SetZero(!m);
-	R1 = m;
+	*RegCodes[reg] = m;
 }
 
-void SOC::Op_ST(uint16_t src)
+void SOC::Op_ST(uint8_t reg, uint16_t src)
 {
-	Write(src, R1);
-	return;
+	Write(src, *RegCodes[reg]);
 }
 
-void SOC::Op_ADD(uint16_t src)
+void SOC::Op_ADD(uint8_t reg, uint16_t src)
 {
 	uint16_t m = Read(src);
-	unsigned int tmp = m + R1 + (IfCarry() ? 1 : 0 );
+	unsigned int tmp = m + *RegCodes[reg] + (IfCarry() ? 1 : 0 );
 	SetCarry(tmp > 0xFF);
 	SetZero(!(tmp & 0xFF));
-	R1 = tmp & 0xFF;
-	return;
+	*RegCodes[reg] = tmp & 0xFF;
+}
+
+void SOC::Op_JMP(uint8_t reg, uint16_t src)
+{
+	PC = src;
+}
+
+void SOC::Op_JPC(uint8_t reg, uint16_t src)
+{
+	if(IfCarry())
+	{
+		PC += src;
+	}
+}
+
+void SOC::Op_JPZ(uint8_t reg, uint16_t src)
+{
+	if(IfZero())
+	{
+		PC += src;
+	}
+}
+
+void SOC::Op_JPN(uint8_t reg, uint16_t src)
+{
+	if(IfNegative())
+	{
+		PC += src;
+	}
+}
+
+void SOC::Op_PH(uint8_t reg, uint16_t src)
+{
+	StackPush(*RegCodes[reg]);
+}
+
+void SOC::Op_PL(uint8_t reg, uint16_t src)
+{
+	*RegCodes[reg] = StackPop();
+	SetNegative(*RegCodes[reg] & 0x80);
+	SetZero(!(*RegCodes[reg]));
+}
+
+void SOC::Op_AND(uint8_t reg, uint16_t src)
+{
+	uint8_t mem = Read(src);
+	uint8_t result = *RegCodes[reg] & mem;
+	SetNegative(result & 0x80);
+	SetZero(!result);
+	*RegCodes[reg] = result;
+}
+
+void SOC::Op_XOR(uint8_t reg, uint16_t src)
+{
+	uint8_t mem = Read(src);
+	uint8_t result = *RegCodes[reg] ^ mem;
+	SetNegative(result & 0x80);
+	SetZero(!result);
+	*RegCodes[reg] = result;
+}
+
+void SOC::Op_CLC(uint8_t reg, uint16_t src)
+{
+	SetCarry(0);
 }
 
 
@@ -259,24 +340,26 @@ void SOC::StackPush(uint8_t byte)
 }
 
 
-uint8_t SOC::StackPop(uint8_t byte)
+uint8_t SOC::StackPop()
 {
 	SP++;
 	return Read(0x0100 + SP);
 }
 
 
-uint8_t SOC::InstructionManager(uint8_t opCode, uint8_t address)
+uint8_t SOC::InstructionManager(uint8_t opCode, uint8_t address, uint8_t reg)
 {
-	uint8_t lowBits;
-	uint8_t highBits;
+	uint8_t opBits;
+	uint8_t addrBits;
+	uint8_t regBits;
 	uint8_t instruction;
 
 	// write bit
-	lowBits = opCode;
-	highBits = address << 4;
+	opBits = opCode;
+	addrBits = address << 6;
+	regBits = reg << 4;
 
-	instruction = lowBits | highBits;
+	instruction = addrBits| regBits | opBits;
 
 	return instruction;
 

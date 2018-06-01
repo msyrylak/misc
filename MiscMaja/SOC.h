@@ -45,9 +45,10 @@ public:
 	uint8_t myMem[65536];
 
 	// registers
-	uint8_t R1;
-	uint8_t R2;
-	uint8_t R3;
+	uint8_t R1; // code 0x00
+	uint8_t R2; //code 0x01
+	uint8_t R3; //code 0x02
+	uint8_t *RegCodes[4];
 
 	// stack pointer
 	uint8_t SP;
@@ -67,7 +68,7 @@ public:
 	// instructions table
 	uint8_t InstructionSet[256];
 
-	typedef void(SOC::*OpCode)(uint16_t);
+	typedef void(SOC::*OpCode)(uint8_t, uint16_t);
 	OpCode OpCodes[16];
 
 	typedef uint16_t(SOC::*AddressMode)();
@@ -76,10 +77,20 @@ public:
 
 	void Exec(uint8_t i);
 
-	void Op_BRK(uint16_t src);
-	void Op_ST(uint16_t src);
-	void Op_LD(uint16_t src);
-	void Op_ADD(uint16_t src);
+	void Op_BRK(uint8_t reg, uint16_t src);
+	void Op_ST(uint8_t reg, uint16_t src);
+	void Op_LD(uint8_t reg, uint16_t src);
+	void Op_ADD(uint8_t reg, uint16_t src);
+	void Op_JMP(uint8_t reg, uint16_t src);
+	void Op_JPC(uint8_t reg, uint16_t src);
+	void Op_JPZ(uint8_t reg, uint16_t src);
+	void Op_JPN(uint8_t reg, uint16_t src);
+	void Op_PH(uint8_t reg, uint16_t src);
+	void Op_PL(uint8_t reg, uint16_t src);
+	void Op_AND(uint8_t reg, uint16_t src);
+	void Op_XOR(uint8_t reg, uint16_t src);
+	void Op_CLC(uint8_t reg, uint16_t src);
+
 
 	uint16_t Addr_IMP(); // IMPLIED
 	uint16_t Addr_IMM(); // IMMEDIATE
@@ -105,9 +116,9 @@ public:
 
 	// stack operations
 	void StackPush(uint8_t byte);
-	uint8_t StackPop(uint8_t byte);
+	uint8_t StackPop();
 
-	uint8_t InstructionManager(uint8_t opCode, uint8_t address);
+	uint8_t InstructionManager(uint8_t opCode, uint8_t address, uint8_t reg);
 
 	AddressMode GetAddress(uint8_t addressMd);
 	OpCode GetOpCode(uint8_t opCode);
