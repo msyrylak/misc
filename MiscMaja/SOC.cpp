@@ -40,17 +40,17 @@ SOC::SOC()
 
 	myMem[SOC::rstVectorH] = 0;
 	myMem[SOC::rstVectorL] = 0;
-	myMem[0] = 169;
-	myMem[1] = 5;
-	myMem[2] = 0x06;
-	myMem[3] = 0xFF;
-	myMem[4] = 0x05;
-	myMem[5] = 1;
-	myMem[6] = 0x07;
-	myMem[7] = 0x05;
-	myMem[8] = 10;
-	myMem[9] = 0x8D;
-	myMem[10] = 12;
+	myMem[0] = 169; //load 
+	myMem[1] = 5;   //5 to R1
+	myMem[2] = 0x06; //XOR R1 
+	myMem[3] = 0xFF; //with 255
+	myMem[4] = 0x05; //ADD 
+	myMem[5] = 1; //one to make it negative (two's complement)
+	myMem[6] = 0x07; //clear carry flag
+	myMem[7] = 0x05; //add
+	myMem[8] = 10; //add 10 to -5
+	myMem[9] = 0x8D; //store it
+	myMem[10] = 12; //on 12 position in the memory
 	myMem[11] = 0;
 
 	Reset();
@@ -179,6 +179,8 @@ void SOC::Run(uint32_t n)
 	uint8_t opcode;
 	uint8_t instr;
 
+	//ReadMemory(myMem, 65536);
+
 	for(uint32_t i = 0; i < n; i++)
 	{
 		// fetch
@@ -190,6 +192,7 @@ void SOC::Run(uint32_t n)
 		// execute
 		Exec(instr);
 	}
+	//WriteMemory(myMem, 65536);
 }
 
 
@@ -374,4 +377,39 @@ SOC::AddressMode SOC::GetAddress(uint8_t addressMd)
 SOC::OpCode SOC::GetOpCode(uint8_t opCode)
 {
 	return OpCodes[opCode];
+}
+
+void SOC::WriteMemory(uint8_t* mem, int size)
+{
+	std::fstream outfile;
+	outfile.open("memory.dat", std::ios::binary | std::ios::out);
+	if(outfile)
+	{
+		for(int i = 0; i < size; i++)
+		{
+			outfile.write((char *)&mem[i], sizeof(uint8_t));
+		}
+	}
+	else
+	{
+		std::cout << "No file found!";
+	}
+}
+
+void SOC::ReadMemory(uint8_t* mem, int size)
+{
+	std::fstream infile;
+	infile.open("memory.dat", std::ios::binary | std::ios::in);
+	if(infile)
+	{
+		for(int i = 0; i < size; i++)
+		{
+			infile.read((char *)&mem[i], sizeof(uint8_t));
+		}
+	}
+	else
+	{
+		std::cout << "No file found!";
+	}
+
 }

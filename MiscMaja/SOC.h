@@ -1,7 +1,13 @@
 #ifndef SOC_H
 #define SOC_H
+#include "GLFW/glfw3.h"
+#include "GLFW/glfw3native.h"
+#include "imgui.h"
+#include "imgui_impl_glfw_gl2.h"
+#include "imgui_memory_editor.h"
 #include <iostream>
 #include <cstdint>
+#include <fstream>
 
 
 class SOC
@@ -122,6 +128,9 @@ public:
 
 	AddressMode GetAddress(uint8_t addressMd);
 	OpCode GetOpCode(uint8_t opCode);
+
+	void WriteMemory(uint8_t* mem, int size);
+	void ReadMemory(uint8_t* mem, int size);
 };
 
 
