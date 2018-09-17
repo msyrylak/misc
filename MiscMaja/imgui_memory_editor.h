@@ -36,6 +36,7 @@
 
 #pragma once
 #include <stdio.h>  // sprintf, scanf
+#include <vector>
 
 struct MemoryEditor
 {
@@ -90,6 +91,7 @@ struct MemoryEditor
         HighlightMin = HighlightMax = (size_t)-1;
     }
 
+
     void GotoAddrAndHighlight(size_t addr_min, size_t addr_max)
     {
         GotoAddr = addr_min;
@@ -142,7 +144,7 @@ struct MemoryEditor
 #endif
 
     // Standalone Memory Editor window
-    void DrawWindow(const char* title, u8* mem_data, size_t mem_size, size_t base_display_addr = 0x0000)
+	void DrawWindow(const char* title, u8* mem_data, size_t mem_size, std::vector<uint16_t>* changesVector,u8* mem_copy, size_t base_display_addr = 0x0000)
     {
         Sizes s;
         CalcSizes(s, mem_size, base_display_addr);
@@ -153,7 +155,7 @@ struct MemoryEditor
         {
             if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(1))
                 ImGui::OpenPopup("context");
-            DrawContents(mem_data, mem_size, base_display_addr);
+            DrawContents(mem_data, mem_size, changesVector,mem_copy, base_display_addr);
             if (ContentsWidthChanged)
             {
                 CalcSizes(s, mem_size, base_display_addr);
@@ -164,12 +166,12 @@ struct MemoryEditor
     }
 
     // Memory Editor contents only
-    void DrawContents(u8* mem_data, size_t mem_size, size_t base_display_addr = 0x0000)
+    void DrawContents(u8* mem_data, size_t mem_size, std::vector<uint16_t>* changesVector, u8* mem_copy, size_t base_display_addr = 0x0000)
     {
         Sizes s;
         CalcSizes(s, mem_size, base_display_addr);
         ImGuiStyle& style = ImGui::GetStyle();
-
+		
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing(); // 1 separator, 1 input text
         ImGui::BeginChild("##scrolling", ImVec2(0, -footer_height_to_reserve));
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -226,6 +228,7 @@ struct MemoryEditor
                 if (OptMidRowsCount > 0)
                     byte_pos_x += (n / OptMidRowsCount) * s.SpacingBetweenMidRows;
                 ImGui::SameLine(byte_pos_x);
+				
 
                 // Draw highlight
                 if ((addr >= HighlightMin && addr < HighlightMax) || (HighlightFn && HighlightFn(mem_data, addr)))
@@ -241,6 +244,7 @@ struct MemoryEditor
                     }
                     draw_list->AddRectFilled(pos, ImVec2(pos.x + highlight_width, pos.y + s.LineHeight), HighlightColor);
                 }
+
 
                 if (DataEditingAddr == addr)
                 {
@@ -269,7 +273,7 @@ struct MemoryEditor
                                 data->DeleteChars(0, data->BufTextLen);
                                 data->InsertChars(0, user_data->CurrentBufOverwrite);
                                 data->SelectionStart = 0;
-                                data->SelectionEnd = data->CursorPos = 2;
+                                data->SelectionEnd = data->CursorPos = 2; //highlight
                             }
                             return 0;
                         }
@@ -305,25 +309,55 @@ struct MemoryEditor
                     // NB: The trailing space is not visible but ensure there's no gap that the mouse cannot click on.
                     u8 b = ReadFn ? ReadFn(mem_data, addr) : mem_data[addr];
 
-                    if (OptShowHexII)
-                    {
-                        if ((b >= 32 && b < 128))
-                            ImGui::Text(".%c ", b);
-                        else if (b == 0xFF && OptGreyOutZeroes)
-                            ImGui::TextDisabled("## ");
-                        else if (b == 0x00)
-                            ImGui::Text("   ");
-                        else
-                            ImGui::Text("%02X ", b);
-                    }
-                    else
-                    {
-                        if (b == 0 && OptGreyOutZeroes)
-                            ImGui::TextDisabled("00 ");
-                        else
-                            ImGui::Text("%02X ", b);
-                    }
-                    if (!ReadOnly && ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
+
+					if(OptShowHexII)
+					{
+						if((b >= 32 && b < 128))
+							ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), ".%c ", b);
+						else if(b == 0xFF && OptGreyOutZeroes)
+							ImGui::TextDisabled("## ");
+						else if(b == 0x00)
+							ImGui::Text("   ");
+						else
+							ImGui::Text("%02X ", b);
+					}
+					else
+					{
+						if(b == 0 && OptGreyOutZeroes)
+							ImGui::TextDisabled("00 ");
+						else
+						{
+							if(!changesVector->empty())
+							{
+								unsigned i;
+								for(i = 0; i < changesVector->size(); i++)
+								{
+									if(addr == (*changesVector)[i])
+									{
+										if(mem_data[(*changesVector)[i]] != mem_copy[(*changesVector)[i]])
+										{
+											ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%02X ", b);
+										}
+										else
+										{
+											ImGui::Text("%02X ", b);
+										}
+										break;
+									}
+								}
+								if(i == changesVector->size())
+								{
+									ImGui::Text("%02X ", b);
+								}
+							}
+							else
+							{
+								ImGui::Text("%02X ", b);
+							}
+						}
+					}
+
+					if(!ReadOnly && ImGui::IsItemHovered() && ImGui::IsMouseClicked(0))
                     {
                         DataEditingTakeFocus = true;
                         data_editing_addr_next = addr;
@@ -418,6 +452,8 @@ struct MemoryEditor
 
         // Notify the main window of our ideal child content size (FIXME: we are missing an API to get the contents size from the child)
         ImGui::SetCursorPosX(s.WindowWidth);
+		//changesVector->clear();
+		//memcpy(mem_copy, mem_data, 65536);
     }
 };
 #undef _PRISizeT

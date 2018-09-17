@@ -38,20 +38,20 @@ SOC::SOC()
 	InstructionSet[0xA9] = InstructionManager(0x02, 0x01, 0x00); // LD
 	InstructionSet[0x8D] = InstructionManager(0x03, 0x00, 0x00); // ST
 
-	myMem[SOC::rstVectorH] = 0;
-	myMem[SOC::rstVectorL] = 0;
-	myMem[0] = 169; //load 
-	myMem[1] = 5;   //5 to R1
-	myMem[2] = 0x06; //XOR R1 
-	myMem[3] = 0xFF; //with 255
-	myMem[4] = 0x05; //ADD 
-	myMem[5] = 1; //one to make it negative (two's complement)
-	myMem[6] = 0x07; //clear carry flag
-	myMem[7] = 0x05; //add
-	myMem[8] = 10; //add 10 to -5
-	myMem[9] = 0x8D; //store it
-	myMem[10] = 12; //on 12 position in the memory
-	myMem[11] = 0;
+	//myMem[SOC::rstVectorH] = 0;
+	//myMem[SOC::rstVectorL] = 0;
+	//myMem[0] = 169; //load 
+	//myMem[1] = 5;   //5 to R1
+	//myMem[2] = 0x06; //XOR R1 
+	//myMem[3] = 0xFF; //with 255
+	//myMem[4] = 0x05; //ADD 
+	//myMem[5] = 1; //one to make it negative (two's complement)
+	//myMem[6] = 0x07; //clear carry flag
+	//myMem[7] = 0x05; //add
+	//myMem[8] = 10; //add 10 to -5
+	//myMem[9] = 0x8D; //store it
+	//myMem[10] = 12; //on 12 position in the memory
+	//myMem[11] = 0;
 
 	Reset();
 	return;
@@ -149,6 +149,7 @@ bool SOC::IfNegative()
 void SOC::Write(uint16_t addr, uint8_t val)
 {
 	myMem[addr] = val;
+	changes.push_back(addr);
 }
 
 
@@ -179,8 +180,6 @@ void SOC::Run(uint32_t n)
 	uint8_t opcode;
 	uint8_t instr;
 
-	//ReadMemory(myMem, 65536);
-
 	for(uint32_t i = 0; i < n; i++)
 	{
 		// fetch
@@ -192,7 +191,6 @@ void SOC::Run(uint32_t n)
 		// execute
 		Exec(instr);
 	}
-	//WriteMemory(myMem, 65536);
 }
 
 
@@ -379,7 +377,7 @@ SOC::OpCode SOC::GetOpCode(uint8_t opCode)
 	return OpCodes[opCode];
 }
 
-void SOC::WriteMemory(uint8_t* mem, int size)
+void SOC::SaveMemory(uint8_t* mem, int size)
 {
 	std::fstream outfile;
 	outfile.open("memory.dat", std::ios::binary | std::ios::out);
@@ -396,7 +394,7 @@ void SOC::WriteMemory(uint8_t* mem, int size)
 	}
 }
 
-void SOC::ReadMemory(uint8_t* mem, int size)
+void SOC::LoadMemory(uint8_t* mem, int size)
 {
 	std::fstream infile;
 	infile.open("memory.dat", std::ios::binary | std::ios::in);

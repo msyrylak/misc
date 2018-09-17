@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstdint>
 #include <fstream>
+#include <vector>
 
 
 class SOC
@@ -45,10 +46,10 @@ class SOC
 	bool IfNegative();
 
 
-
 public:
 	// memory
 	uint8_t myMem[65536];
+	std::vector<uint16_t> changes;
 
 	// registers
 	uint8_t R1; // code 0x00
@@ -129,8 +130,8 @@ public:
 	AddressMode GetAddress(uint8_t addressMd);
 	OpCode GetOpCode(uint8_t opCode);
 
-	void WriteMemory(uint8_t* mem, int size);
-	void ReadMemory(uint8_t* mem, int size);
+	void SaveMemory(uint8_t* mem, int size);
+	void LoadMemory(uint8_t* mem, int size);
 };
 
 
