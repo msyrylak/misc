@@ -4,7 +4,6 @@
 #include "GLFW/glfw3native.h"
 #include "imgui.h"
 #include "imgui_impl_glfw_gl2.h"
-#include "imgui_memory_editor.h"
 #include <iostream>
 #include <cstdint>
 #include <fstream>
@@ -47,9 +46,18 @@ class SOC
 
 
 public:
+
+	struct changedByte
+	{
+		uint16_t address;
+		uint16_t value;
+	};
+
+
 	// memory
 	uint8_t myMem[65536];
-	std::vector<uint16_t> changes;
+	uint8_t* mem_copy = new uint8_t[65536];
+	std::vector<changedByte> changes;
 
 	// registers
 	uint8_t R1; // code 0x00

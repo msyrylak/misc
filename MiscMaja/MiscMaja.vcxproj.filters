@@ -39,6 +39,9 @@
     <ClCompile Include="imgui_impl_glfw_gl2.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="imgui_memory_editor.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SOC.h">

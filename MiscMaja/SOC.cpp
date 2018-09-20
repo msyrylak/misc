@@ -149,7 +149,7 @@ bool SOC::IfNegative()
 void SOC::Write(uint16_t addr, uint8_t val)
 {
 	myMem[addr] = val;
-	changes.push_back(addr);
+	changes.push_back({addr, val});
 }
 
 
@@ -170,6 +170,10 @@ void SOC::Reset()
 	SP = 0xFD;
 
 	SR = 0x00;
+
+	changes.clear();
+	memcpy(mem_copy, myMem, 65536);
+
 
 	return;
 

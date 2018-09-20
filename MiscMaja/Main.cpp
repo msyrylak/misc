@@ -21,8 +21,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 int main()
 {
 	SOC test;
-	uint8_t* mem_copy = new uint8_t[65536];
-
 
 		// Setup window
 		glfwSetErrorCallback(glfw_error_callback);
@@ -57,7 +55,7 @@ int main()
 			if(ImGui::Button("Load"))
 			{
 				test.LoadMemory(test.myMem, 65536);
-				memcpy(mem_copy, test.myMem, 65536);
+				memcpy(test.mem_copy, test.myMem, 65536);
 			}
 			if(ImGui::Button("Save"))
 			{
@@ -69,26 +67,21 @@ int main()
 			}
 			if(ImGui::Button("Run"))
 			{
-				test.changes.clear();
-				memcpy(mem_copy, test.myMem, 65536);
 				test.Run(10);
 			}
 			if(ImGui::Button("Step"))
 			{
-				test.changes.clear();
-				memcpy(mem_copy, test.myMem, 65536);
 				test.Run(1);
 			}
 			if(ImGui::Button("Exit"))
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
 			ImGui::End();
 
-	
 
 			static MemoryEditor mem_edit_2;
 			ImGui::SetWindowPos(ImVec2(200, 100), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Memory");
-			mem_edit_2.DrawContents(test.myMem, 65536, &test.changes, mem_copy, 0x0000);
+			mem_edit_2.DrawContents(test.myMem, 65536, test.changes, test.mem_copy, 0x0000);
 			ImGui::End();
 
 			ImGui::Begin("Registers");
