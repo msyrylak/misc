@@ -2,7 +2,7 @@
 
 
 // Memory Editor contents only
-void MemoryEditor::DrawContents(u8* mem_data, size_t mem_size, std::vector<SOC::changedByte> changesVector, u8* mem_copy, size_t base_display_addr)
+void MemoryEditor::DrawContents(u8* mem_data, size_t mem_size, std::map<uint16_t, uint16_t> changesMap, u8* mem_copy, size_t base_display_addr)
 {
 	Sizes s;
 	CalcSizes(s, mem_size, base_display_addr);
@@ -161,34 +161,29 @@ void MemoryEditor::DrawContents(u8* mem_data, size_t mem_size, std::vector<SOC::
 				if(OptShowHexII)
 				{
 					if((b >= 32 && b < 128))
-						ImGui::Text(".%c ", b);
+						ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), ".%c ", b);
 					else if(b == 0xFF && OptGreyOutZeroes)
 						ImGui::TextDisabled("## ");
 					else if(b == 0x00)
 						ImGui::Text("   ");
 					else
 					{
-						if(!changesVector.empty())
+
+						std::map<uint16_t, uint16_t>::iterator it;
+
+						// Find the element with key
+						it = changesMap.find(addr);
+
+						// Check if element exists in map or not
+						if(it != changesMap.end())
 						{
-							unsigned i;
-							for(i = 0; i < changesVector.size(); i++)
-							{
-								if(addr == changesVector[i].address)
-								{
-									if(mem_data[changesVector[i].address] != mem_copy[changesVector[i].address])
-									{
-										ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%02X ", b);
-									}
-									else
-									{
-										ImGui::Text("%02X ", b);
-									}
-									break;
-								}
-							}
-							if(i == changesVector.size())
+							if(mem_data[addr] == it->second)
 							{
 								ImGui::Text("%02X ", b);
+							}
+							else
+							{
+								ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%02X ", b);
 							}
 						}
 						else
@@ -197,33 +192,28 @@ void MemoryEditor::DrawContents(u8* mem_data, size_t mem_size, std::vector<SOC::
 						}
 					}
 				}
+					
 				else
 				{
 					if(b == 0 && OptGreyOutZeroes)
 						ImGui::TextDisabled("00 ");
 					else
 					{
-						if(!changesVector.empty())
+						std::map<std::uint16_t, uint16_t>::iterator it;
+
+						// Find the element with key
+						it = changesMap.find(addr);
+
+						// Check if element exists in map or not
+						if(it != changesMap.end())
 						{
-							unsigned i;
-							for(i = 0; i < changesVector.size(); i++)
-							{
-								if(addr == changesVector[i].address)
-								{
-									if(mem_data[changesVector[i].address] != mem_copy[changesVector[i].address])
-									{
-										ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%02X ", b);
-									}
-									else
-									{
-										ImGui::Text("%02X ", b);
-									}
-									break;
-								}
-							}
-							if(i == changesVector.size())
+							if(mem_data[addr] == it->second)
 							{
 								ImGui::Text("%02X ", b);
+							}
+							else
+							{
+								ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%02X ", b);
 							}
 						}
 						else

@@ -148,8 +148,8 @@ bool SOC::IfNegative()
 
 void SOC::Write(uint16_t addr, uint8_t val)
 {
+	changes.insert(std::pair<uint16_t, uint16_t>(addr, myMem[addr]));
 	myMem[addr] = val;
-	changes.push_back({addr, val});
 }
 
 
@@ -171,9 +171,7 @@ void SOC::Reset()
 
 	SR = 0x00;
 
-	changes.clear();
-	memcpy(mem_copy, myMem, 65536);
-
+	changes.erase(changes.begin(), changes.end());
 
 	return;
 
@@ -211,7 +209,7 @@ void SOC::Exec(uint8_t i)
 }
 
 
-// imediate
+// immediate
 uint16_t SOC::Addr_IMM()
 {
 	return PC++;

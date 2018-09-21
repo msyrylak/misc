@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <fstream>
 #include <vector>
+#include <map>
 
 
 class SOC
@@ -47,17 +48,10 @@ class SOC
 
 public:
 
-	struct changedByte
-	{
-		uint16_t address;
-		uint16_t value;
-	};
-
-
 	// memory
 	uint8_t myMem[65536];
 	uint8_t* mem_copy = new uint8_t[65536];
-	std::vector<changedByte> changes;
+	std::map<uint16_t,uint16_t> changes;
 
 	// registers
 	uint8_t R1; // code 0x00
@@ -113,10 +107,6 @@ public:
 
 	uint8_t Read(uint16_t addr);
 	void Write(uint16_t addr, uint8_t val);
-
-	//void BusWrite(uint16_t addr, uint8_t val);
-	//uint8_t BusRead(uint16_t addr);
-
 
 	// reset vectors
 	static const uint16_t rstVectorH = 0xFFFD;
