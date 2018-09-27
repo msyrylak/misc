@@ -21,7 +21,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 int main()
 {
 	SOC test;
-
+	bool highlight = false;
 		// Setup window
 		glfwSetErrorCallback(glfw_error_callback);
 		if(!glfwInit())
@@ -55,7 +55,7 @@ int main()
 			if(ImGui::Button("Load"))
 			{
 				test.LoadMemory(test.myMem, 65536);
-				memcpy(test.mem_copy, test.myMem, 65536);
+				highlight = true;
 			}
 			if(ImGui::Button("Save"))
 			{
@@ -81,7 +81,7 @@ int main()
 			static MemoryEditor mem_edit_2;
 			ImGui::SetWindowPos(ImVec2(200, 100), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Memory");
-			mem_edit_2.DrawContents(test.myMem, 65536, test.changes, test.mem_copy, 0x0000);
+			mem_edit_2.DrawContents(test.myMem, 65536, test.changes, highlight,test.PC, 0x0000);
 			ImGui::End();
 
 			ImGui::Begin("Registers");
@@ -101,7 +101,6 @@ int main()
 			sprintf_s(temp3, "%02x", test.R3);
 			sprintf_s(temp4, "%02x", test.PC);
 			ImGui::Text(temp); ImGui::NextColumn(); 
-			//ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "lol");
 			ImGui::Text(temp2); ImGui::NextColumn();
 			ImGui::Text(temp3); ImGui::NextColumn();
 			ImGui::Text(temp4); ImGui::NextColumn();

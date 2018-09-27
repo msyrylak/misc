@@ -171,7 +171,7 @@ void SOC::Reset()
 
 	SR = 0x00;
 
-	changes.erase(changes.begin(), changes.end());
+	// TODO clean the memory (0x00)
 
 	return;
 

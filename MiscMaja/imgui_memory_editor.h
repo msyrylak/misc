@@ -145,7 +145,7 @@ struct MemoryEditor
 #endif
 
     // Standalone Memory Editor window
-	void DrawWindow(const char* title, u8* mem_data, size_t mem_size, std::map<uint16_t, uint16_t> changesMap, u8* mem_copy, size_t base_display_addr = 0x0000)
+	void DrawWindow(const char* title, u8* mem_data, size_t mem_size, std::map<uint16_t, uint16_t> changesMap, bool highlight, uint16_t pc, size_t base_display_addr = 0x0000)
     {
         Sizes s;
         CalcSizes(s, mem_size, base_display_addr);
@@ -156,7 +156,7 @@ struct MemoryEditor
         {
             if (ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows) && ImGui::IsMouseClicked(1))
                 ImGui::OpenPopup("context");
-            DrawContents(mem_data, mem_size, changesMap, mem_copy, base_display_addr);
+            DrawContents(mem_data, mem_size, changesMap, highlight, pc, base_display_addr);
             if (ContentsWidthChanged)
             {
                 CalcSizes(s, mem_size, base_display_addr);
@@ -167,7 +167,7 @@ struct MemoryEditor
     }
 
     // Memory Editor contents only
-	void DrawContents(u8* mem_data, size_t mem_size, std::map<uint16_t, uint16_t> changesMap, u8* mem_copy, size_t base_display_addr = 0x0000);
+	void DrawContents(u8* mem_data, size_t mem_size, std::map<uint16_t, uint16_t> changesMap, bool highlight, uint16_t pc, size_t base_display_addr = 0x0000);
 
     //void DrawContents(u8* mem_data, size_t mem_size, std::vector<SOC::changedByte> changesVector, u8* mem_copy, size_t base_display_addr = 0x0000)
     //{
