@@ -50,8 +50,8 @@ public:
 
 	// memory
 	uint8_t myMem[65536];
-	uint8_t* mem_copy = new uint8_t[65536];
 	std::map<uint16_t,uint16_t> changes;
+	uint16_t highlightbyte = 1;
 
 	// registers
 	uint8_t R1; // code 0x00

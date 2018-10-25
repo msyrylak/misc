@@ -190,8 +190,10 @@ void SOC::Run(uint32_t n)
 		// decode
 		instr = InstructionSet[opcode];
 
+		highlightbyte = 0;
 		// execute
 		Exec(instr);
+
 	}
 }
 
@@ -212,6 +214,7 @@ void SOC::Exec(uint8_t i)
 // immediate
 uint16_t SOC::Addr_IMM()
 {
+	highlightbyte++;
 	return PC++;
 }
 
@@ -230,6 +233,8 @@ uint16_t SOC::Addr_ABS()
 
 	addrL = Read(PC++);
 	addrH = Read(PC++);
+
+	highlightbyte = 2;
 
 	addr = addrL + (addrH << 8);
 

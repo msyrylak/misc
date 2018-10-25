@@ -81,7 +81,7 @@ int main()
 			static MemoryEditor mem_edit_2;
 			ImGui::SetWindowPos(ImVec2(200, 100), ImGuiCond_FirstUseEver);
 			ImGui::Begin("Memory");
-			mem_edit_2.DrawContents(test.myMem, 65536, test.changes, highlight,test.PC, 0x0000);
+			mem_edit_2.DrawContents(test.myMem, 65536, test.changes, highlight, test.highlightbyte, test.PC, 0x0000);
 			ImGui::End();
 
 			ImGui::Begin("Registers");

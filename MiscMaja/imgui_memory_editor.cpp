@@ -2,7 +2,7 @@
 
 
 // Memory Editor contents only
-void MemoryEditor::DrawContents(u8* mem_data, size_t mem_size, std::map<uint16_t, uint16_t> changesMap, bool highlight,  uint16_t pc, size_t base_display_addr)
+void MemoryEditor::DrawContents(u8* mem_data, size_t mem_size, std::map<uint16_t, uint16_t> changesMap, bool highlight, uint16_t highlightbyte,uint16_t pc, size_t base_display_addr)
 {
 	Sizes s;
 	CalcSizes(s, mem_size, base_display_addr);
@@ -93,13 +93,21 @@ void MemoryEditor::DrawContents(u8* mem_data, size_t mem_size, std::map<uint16_t
 				draw_list->AddRectFilled(pos, ImVec2(pos.x + highlight_width, pos.y + s.LineHeight), HighlightColor);
 
 			}
+			float highlight_width2 = 0;
 
-			// track the instructions and highlight the bytes that are in use????
-			// TODO - based on the pc and the instruction highlight all of the bytes that have to do something with the instruction
+			if(highlightbyte == 0)
+			{
+				highlight_width2 = 0;
+			}
+			else
+			{
+				highlight_width2 = ((s.GlyphWidth * 2) * highlightbyte);
+			}
+			// TODO - based on the pc and the instruction, highlight number of bytes accordingly
 			if(pc == addr && highlight)
 			{
 				ImVec2 p = ImGui::GetCursorScreenPos();
-				float x = p.x + s.GlyphWidth*2, y = p.y + s.LineHeight; // TODO - (GlyphWidth * 2) * number of used bytes
+				float x = p.x + ((s.GlyphWidth*2) + highlight_width2), y = p.y + s.LineHeight; // TODO - (GlyphWidth * 2) * number of used bytes 
 				draw_list->AddRectFilled(p, ImVec2(x, y), IM_COL32(0, 255, 0, 50));
 			}
 		 
