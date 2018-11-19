@@ -84,7 +84,7 @@ public:
 	AddressMode AddressModes[8];
 
 
-	void Exec(uint8_t i);
+	void Execute(uint8_t i);
 
 	void Op_BRK(uint8_t reg, uint16_t src);
 	void Op_ST(uint8_t reg, uint16_t src);

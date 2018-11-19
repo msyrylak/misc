@@ -26,7 +26,7 @@ int main()
 		glfwSetErrorCallback(glfw_error_callback);
 		if(!glfwInit())
 			return 1;
-		GLFWwindow* window = glfwCreateWindow(1280, 720, "ImGui GLFW+OpenGL2 example", NULL, NULL);
+		GLFWwindow* window = glfwCreateWindow(1280, 720, "SOC Simulator", NULL, NULL);
 		glfwMakeContextCurrent(window);
 		glfwSwapInterval(1); // Enable vsync
 

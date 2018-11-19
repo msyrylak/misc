@@ -171,8 +171,6 @@ void SOC::Reset()
 
 	SR = 0x00;
 
-	// TODO clean the memory (0x00)
-
 	return;
 
 }
@@ -191,16 +189,16 @@ void SOC::Run(uint32_t n)
 		instr = InstructionSet[opcode];
 
 		highlightbyte = 0;
+
 		// execute
-		Exec(instr);
+		Execute(instr);
 
 	}
 }
 
 
-void SOC::Exec(uint8_t i)
+void SOC::Execute(uint8_t i)
 {
-
 	// decode opcode and addressing mode
 	uint8_t opCode = i & 0x0F;
 	uint8_t addressMd = i >> 6;
