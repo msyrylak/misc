@@ -107,7 +107,7 @@ void MemoryEditor::DrawContents(u8* mem_data, size_t mem_size, std::map<uint16_t
 			if(pc == addr && highlight)
 			{
 				ImVec2 p = ImGui::GetCursorScreenPos();
-				float x = p.x + ((s.GlyphWidth*2) + highlight_width2), y = p.y + s.LineHeight; // TODO - (GlyphWidth * 2) * number of used bytes 
+				float x = p.x + ((s.GlyphWidth*2) + highlight_width2), y = p.y + s.LineHeight; 
 				draw_list->AddRectFilled(p, ImVec2(x, y), IM_COL32(0, 255, 0, 50));
 			}
 		 
@@ -209,7 +209,6 @@ void MemoryEditor::DrawContents(u8* mem_data, size_t mem_size, std::map<uint16_t
 						}
 					}
 				}
-					
 				else
 				{
 					if(b == 0 && OptGreyOutZeroes)

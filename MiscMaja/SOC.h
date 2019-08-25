@@ -54,9 +54,9 @@ public:
 	uint16_t highlightbyte = 1;
 
 	// registers
-	uint8_t R1; // code 0x00
-	uint8_t R2; //code 0x01
-	uint8_t R3; //code 0x02
+	uint8_t R0; // code 0x00
+	uint8_t R1; //code 0x01
+	uint8_t R2; //code 0x02
 	uint8_t *RegCodes[4];
 
 	// stack pointer
@@ -114,6 +114,7 @@ public:
 	static const uint16_t irqVectorH = 0xFFFF;
 	static const uint16_t irqVectorL = 0xFFFE;
 
+	// constructor and destructor
 	SOC();
 	~SOC();
 	void Reset();

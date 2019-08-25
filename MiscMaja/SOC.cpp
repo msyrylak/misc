@@ -1,7 +1,17 @@
 #include "SOC.h"
 
-SOC::SOC()
+SOC::SOC() :
+	R0 (0x00),
+	R1 (0x00),
+	R2 (0x00),
+	PC ((Read(rstVectorH) << 8) + (Read(rstVectorL))),
+	SR (0x00),
+	SP (0xFD),
+	myMem(),
+	instruction(),
+	cycles()
 {
+
 	OpCodes[0x00] = &SOC::Op_BRK;
 	OpCodes[0x01] = &SOC::Op_ADD;
 	OpCodes[0x02] = &SOC::Op_LD;
@@ -20,9 +30,9 @@ SOC::SOC()
 	AddressModes[0x01] = &SOC::Addr_IMM;
 	AddressModes[0x02] = &SOC::Addr_IMP;
 
-	RegCodes[0x00] = &R1;
-	RegCodes[0x01] = &R2;
-	RegCodes[0x02] = &R3;
+	RegCodes[0x00] = &R0;
+	RegCodes[0x01] = &R1;
+	RegCodes[0x02] = &R2;
 
 	InstructionSet[0x00] = InstructionManager(0x00, 0x00, 0x00); // BRK
 	InstructionSet[0x01] = InstructionManager(0x04, 0x00, 0x00); // JMP
@@ -161,9 +171,9 @@ uint8_t SOC::Read(uint16_t addr)
 
 void SOC::Reset()
 {
+	R0 = 0x00;
 	R1 = 0x00;
 	R2 = 0x00;
-	R3 = 0x00;
 
 	PC = (Read(rstVectorH) << 8) + (Read(rstVectorL)); // load PC from reset vector
 
@@ -199,7 +209,7 @@ void SOC::Run(uint32_t n)
 
 void SOC::Execute(uint8_t i)
 {
-	// decode opcode and addressing mode
+	// decode opcode, addressing mode and register to be used 
 	uint8_t opCode = i & 0x0F;
 	uint8_t addressMd = i >> 6;
 	uint8_t regBit = (i >> 4) & 3;
@@ -282,7 +292,7 @@ void SOC::Op_JPC(uint8_t reg, uint16_t src)
 {
 	if(IfCarry())
 	{
-		PC += src;
+		PC = src;
 	}
 }
 
@@ -290,7 +300,7 @@ void SOC::Op_JPZ(uint8_t reg, uint16_t src)
 {
 	if(IfZero())
 	{
-		PC += src;
+		PC = src;
 	}
 }
 
@@ -298,7 +308,7 @@ void SOC::Op_JPN(uint8_t reg, uint16_t src)
 {
 	if(IfNegative())
 	{
-		PC += src;
+		PC = src;
 	}
 }
 

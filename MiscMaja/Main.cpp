@@ -30,7 +30,7 @@ int main()
 		glfwMakeContextCurrent(window);
 		glfwSwapInterval(1); // Enable vsync
 
-							 // Setup Dear ImGui binding
+	    // Setup Dear ImGui binding
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -96,9 +96,9 @@ int main()
 			char temp2[32];
 			char temp3[32];
 			char temp4[32];
-			sprintf_s(temp, "%02x", test.R1);
-			sprintf_s(temp2, "%02x", test.R2);
-			sprintf_s(temp3, "%02x", test.R3);
+			sprintf_s(temp, "%02x", test.R0);
+			sprintf_s(temp2, "%02x", test.R1);
+			sprintf_s(temp3, "%02x", test.R2);
 			sprintf_s(temp4, "%02x", test.PC);
 			ImGui::Text(temp); ImGui::NextColumn(); 
 			ImGui::Text(temp2); ImGui::NextColumn();
